@@ -8,8 +8,11 @@
     />
     <div v-if="loading">Loading...</div>
     <ul v-if="results.length">
-      <li v-for="movie in results" :key="movie.id">
-        {{ movie.title }} ({{ movie.year }})
+      <li v-for="movie in results" :key="movie.id" >
+        <a :href="movie.url" target="_blank" rel="noopener">
+
+         {{ movie.title }} ({{ movie.year }}) 
+        </a>
       </li>
     </ul>
     <div v-else-if="!loading && searched">No results found.</div>
@@ -40,7 +43,8 @@ async function search() {
         .map(item => ({
           id: item['#IMDB_ID'],
           title: item['#TITLE'],
-          year: item['#YEAR']
+          year: item['#YEAR'],
+          url: `https://www.imdb.com/title/${item['#IMDB_ID']}`
         }))
     : []
     } catch (e) {
