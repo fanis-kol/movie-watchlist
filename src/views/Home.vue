@@ -1,31 +1,58 @@
 <template>
   <div>
     <h1>Movie Search</h1>
-    <input v-model="query" @keyup.enter="search" placeholder="Search for a movie..." />
-    <div v-if="loading">Searching...</div>
-    <div v-else-if="results.length">
-      <ul>
-        <li v-for="movie in results" :key="movie.id">
-          {{ movie.title }} ({{ movie.release_date?.slice(0, 4) }})
-        </li>
-      </ul>
-    </div>
-    <div v-else>No results</div>
+    <input
+      v-model="query"
+      @keyup.enter="search"
+      placeholder="Type a movie and press Enter"
+    />
+    <div v-if="loading">Loading...</div>
+    <ul v-if="results.length">
+      <li v-for="movie in results" :key="movie.id">
+        {{ movie.title }} ({{ movie.year }})
+      </li>
+    </ul>
+    <div v-else-if="!loading && searched">No results found.</div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { searchMovies } from '../utils/tmdb.js'
 
 const query = ref('')
 const results = ref([])
 const loading = ref(false)
+const searched = ref(false)
 
 async function search() {
   if (!query.value.trim()) return
+
   loading.value = true
-  results.value = await searchMovies(query.value)
-  loading.value = false
+  searched.value = false
+
+  try {
+    const res = await fetch(`https://search.imdbot.workers.dev/?q=${encodeURIComponent(query.value)}`)
+    const data = await res.json()
+
+    results.value = (data && data.description)
+    ? data.description
+        .filter(item => isEnglish(item['#TITLE']))
+        .map(item => ({
+          id: item['#IMDB_ID'],
+          title: item['#TITLE'],
+          year: item['#YEAR']
+        }))
+    : []
+    } catch (e) {
+      console.error('API search failed:', e)
+      results.value = []
+    } finally {
+      loading.value = false
+      searched.value = true
+    }
+}
+
+function isEnglish(title) {
+  return /^[\x00-\x7F]+$/.test(title) && /\b(the|of|lord|ring|bird|hunt|evil|empire)\b/i.test(title)
 }
 </script>
