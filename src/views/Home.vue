@@ -8,12 +8,12 @@
     />
     <div v-if="loading">Loading...</div>
     <ul v-if="results.length">
-      <li v-for="movie in results" :key="movie.id" >
+      <div v-for="movie in results" :key="movie.id" class="movie-wrapper">
         <a :href="movie.url" target="_blank" rel="noopener">
-
+        <img :src="movie.poster" class="movie-image">
          {{ movie.title }} ({{ movie.year }}) 
         </a>
-      </li>
+      </div>
     </ul>
     <div v-else-if="!loading && searched">No results found.</div>
   </div>
@@ -44,7 +44,8 @@ async function search() {
           id: item['#IMDB_ID'],
           title: item['#TITLE'],
           year: item['#YEAR'],
-          url: `https://www.imdb.com/title/${item['#IMDB_ID']}`
+          url: `https://www.imdb.com/title/${item['#IMDB_ID']}`,
+          poster: item['#IMG_POSTER']
         }))
     : []
     } catch (e) {
@@ -59,4 +60,4 @@ async function search() {
 function isEnglish(title) {
   return /^[\x00-\x7F]+$/.test(title) && /\b(the|of|lord|ring|bird|hunt|evil|empire)\b/i.test(title)
 }
-</script>
+</script> 
