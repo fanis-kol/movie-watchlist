@@ -5,16 +5,21 @@
       v-model="query"
       @keyup.enter="search"
       placeholder="Type a movie and press Enter"
+      class="movie-search"
     />
     <div v-if="loading">Loading...</div>
-    <ul v-if="results.length">
+    <div v-if="results.length" class="movies-container">
       <div v-for="movie in results" :key="movie.id" class="movie-wrapper">
-        <a :href="movie.url" target="_blank" rel="noopener">
-        <img :src="movie.poster" class="movie-image">
-         {{ movie.title }} ({{ movie.year }}) 
+        <a :href="movie.url" target="_blank" rel="noopener" class="movie-link">
+        <img :src="movie.poster || '/default.svg'" class="movie-image">
+        <div class="movie-info-wrap">
+          <p class="movie-title">
+            {{ movie.title }} ({{ movie.year }})
+          </p>
+        </div>  
         </a>
       </div>
-    </ul>
+    </div>
     <div v-else-if="!loading && searched">No results found.</div>
   </div>
 </template>
