@@ -18,6 +18,7 @@
           </p>
         </div>  
         </a>
+        <button @click="addMovie(movie)">Add to Favorites</button>
       </div>
     </div>
     <div v-else-if="!loading && searched">No results found.</div>
@@ -25,12 +26,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue';
 
 const query = ref('')
 const results = ref([])
 const loading = ref(false)
 const searched = ref(false)
+const watchlist = ref([]);
+
+
+onMounted(() => {
+  const stored = JSON.parse(localStorage.getItem('watchlist') || '[]');
+  watchlist.value = stored;
+  console.log(watchlist);
+});
 
 async function search() {
   if (!query.value.trim()) return
@@ -60,6 +69,16 @@ async function search() {
       loading.value = false
       searched.value = true
     }
+}
+
+
+function addMovie(movie){
+  const stored = JSON.parse(localStorage.getItem('watchlist') || '[]');
+  console.log(stored);
+  if (!stored.some(m => m['#IMDB_ID'] === movie['#IMDB_ID'])) {
+    stored.push(movie);
+    localStorage.setItem('watchlist', JSON.stringify(stored));
+  }
 }
 
 function isEnglish(title) {
