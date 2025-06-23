@@ -7,6 +7,18 @@
       placeholder="Type a movie and press Enter"
       class="movie-search"
     />
+
+    <div v-if="watchlist.length" class="watchlist-section">
+      <h2>Your Watchlist</h2>
+      <div class="movies-container">
+        <div v-for="movie in watchlist" :key="movie.id" class="movie-wrapper">
+          <img :src="movie.poster || '/default.svg'" class="movie-image" />
+          <div class="movie-info-wrap">
+            <p class="movie-title">{{ movie.title }} ({{ movie.year }})</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <div v-if="loading">Loading...</div>
     <div v-if="results.length" class="movies-container">
       <div v-for="movie in results" :key="movie.id" class="movie-wrapper">
@@ -38,7 +50,6 @@ const watchlist = ref([]);
 onMounted(() => {
   const stored = JSON.parse(localStorage.getItem('watchlist') || '[]');
   watchlist.value = stored;
-  console.log(watchlist);
 });
 
 async function search() {
@@ -74,10 +85,11 @@ async function search() {
 
 function addMovie(movie){
   const stored = JSON.parse(localStorage.getItem('watchlist') || '[]');
-  console.log(stored);
-  if (!stored.some(m => m['#IMDB_ID'] === movie['#IMDB_ID'])) {
+
+  if (!stored.some(m => m.id === movie.id)) {
     stored.push(movie);
     localStorage.setItem('watchlist', JSON.stringify(stored));
+    watchlist.value.unshift(movie);
   }
 }
 
