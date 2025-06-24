@@ -16,6 +16,7 @@
           <div class="movie-info-wrap">
             <p class="movie-title">{{ movie.title }} ({{ movie.year }})</p>
           </div>
+          <button @click="removeFavorite (movie)">Remove Favorites</button>
         </div>
       </div>
     </div>
@@ -30,7 +31,7 @@
           </p>
         </div>  
         </a>
-        <button @click="addMovie(movie)">Add to Favorites</button>
+        <button @click="addFavorite (movie)">Add to Favorites</button>
       </div>
     </div>
     <div v-else-if="!loading && searched">No results found.</div>
@@ -83,14 +84,22 @@ async function search() {
 }
 
 
-function addMovie(movie){
+function addFavorite (movie){
   const stored = JSON.parse(localStorage.getItem('watchlist') || '[]');
 
   if (!stored.some(m => m.id === movie.id)) {
     stored.push(movie);
     localStorage.setItem('watchlist', JSON.stringify(stored));
-    watchlist.value.unshift(movie);
+    watchlist.value = watchlist.value.filter(m => m.id !== movie.id);
+
   }
+}
+
+function removeFavorite(movie) {
+  localStorage.setItem('watchlist', JSON.stringify(
+    JSON.parse(localStorage.getItem('watchlist') || '[]')
+      .filter(m => m.id !== movie.id)
+  ));
 }
 
 function isEnglish(title) {
